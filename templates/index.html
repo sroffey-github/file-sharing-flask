@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Home</title>
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="/">File Sharing</a>
+    </nav><br>
+
+    <form method="POST" class="input-group w-50 mx-auto" enctype="multipart/form-data">
+        <div class="custom-file">
+            <input type="file" name="file" class="custom-file-input" id="customFile">
+            <label class="custom-file-label" for="customFile">Choose file</label>
+        </div>
+
+        <input type="submit" class="btn btn-success" value="Upload"/>
+
+        {% for msg in get_flashed_messages() %}
+            <p>{{msg}}</p>
+        {% endfor %}
+    </form><br>
+
+    <table class="table mx-auto">
+        <thead class="thead-dark">
+          <tr>
+            <th>Filename</th>
+            <th>Date Modified</th>
+            <th>Size</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for file in data %}
+                <tr>
+                    <td>{{file[0]}}</td>
+                    <td>{{file[1]}}</td>
+                    <td>{{file[2]}}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary"><a style="text-decoration: none; color: #fff;" href="/download/{{file[0]}}">Download</a></button>
+                        <button type="button" class="btn btn-danger"><a style="text-decoration: none; color: #fff;" href="/delete/{{file[0]}}">Delete</a></button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
