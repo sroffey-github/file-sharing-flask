@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, flash, redirect, send_file, url_for
+from flask import Flask, render_template, request, flash, redirect, send_file, url_for, session
 from werkzeug.utils import secure_filename
-import os, uuid, time
+from dotenv import load_dotenv
+import os, secrets, time
+
+load_dotenv() # loads env variables
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = str(uuid.uuid4())
+app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
 UPLOAD_FOLDER = f'{os.getcwd()}/files/'
@@ -32,25 +35,36 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if request.method == 'POST':
-        
-        file = request.files['file']
+    if not session.get('logged_in') is None:
+        if request.method == 'POST':
+            
+            file = request.files['file']
 
-        if os.path.isfile(UPLOAD_FOLDER + file.filename):
-            flash('File already exists')
+            if os.path.isfile(UPLOAD_FOLDER + file.filename):
+                flash('File already exists')
+                return render_template('index.html', data=get_files())
+
+            if file.filename == '':
+                flash('No selected file')
+                return render_template('index.html', data=get_files())
+
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(UPLOAD_FOLDER, filename))
+                return render_template('index.html', data=get_files())
+
+        else:
             return render_template('index.html', data=get_files())
-
-        if file.filename == '':
-            flash('No selected file')
-            return render_template('index.html', data=get_files())
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            return render_template('index.html', data=get_files())
-
     else:
-        return render_template('index.html', data=get_files())
+        if request.method == 'POST':
+            if request.form['passcode'] == os.getenv('PASSCODE'):
+                session['logged_in'] = True
+                return render_template('index.html', data=get_files())
+            else:
+                flash('Invalid Passcode')
+                return render_template('index.html')
+        else:
+            return render_template('index.html')
 
 @app.route('/download/<filename>')
 def download_file(filename):
@@ -70,9 +84,16 @@ def delete(filename):
     else:
         return redirect(url_for('index'))
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
 if __name__ == '__main__':
+    if not os.path.isdir(UPLOAD_FOLDER):
+        os.mkdir(UPLOAD_FOLDER)
     app.run(debug=True)
