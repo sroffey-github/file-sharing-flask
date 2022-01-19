@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+    <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,45 +8,106 @@
     <title>Home</title>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="/">File Sharing</a>
-    </nav><br>
 
-    <form method="POST" class="input-group w-50 mx-auto" enctype="multipart/form-data">
-        <div class="custom-file">
-            <input type="file" name="file" class="custom-file-input" id="customFile">
-            <label class="custom-file-label" for="customFile">Choose file</label>
-        </div>
+    {% if session['logged_in'] %}
 
-        <input type="submit" class="btn btn-success" value="Upload"/>
+        <nav class="navbar navbar-light bg-light">
+            <a class="navbar-brand" href="/">File Sharing</a>
+        </nav><br>
 
-        {% for msg in get_flashed_messages() %}
-            <p>{{msg}}</p>
-        {% endfor %}
-    </form><br>
+        <form method="POST" class="input-group w-50 mx-auto" enctype="multipart/form-data">
+            <div class="custom-file">
+                <input type="file" name="file" class="custom-file-input" id="customFile">
+                <label class="custom-file-label" for="customFile">Choose file</label>
+            </div>
 
-    <table class="table mx-auto">
-        <thead class="thead-dark">
-          <tr>
-            <th>Filename</th>
-            <th>Date Modified</th>
-            <th>Size</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-            {% for file in data %}
-                <tr>
-                    <td>{{file[0]}}</td>
-                    <td>{{file[1]}}</td>
-                    <td>{{file[2]}}</td>
-                    <td>
-                        <button type="button" class="btn btn-primary"><a style="text-decoration: none; color: #fff;" href="/download/{{file[0]}}">Download</a></button>
-                        <button type="button" class="btn btn-danger"><a style="text-decoration: none; color: #fff;" href="/delete/{{file[0]}}">Delete</a></button>
-                    </td>
-                </tr>
+            <input type="submit" class="btn btn-success" value="Upload"/>
+
+            {% for msg in get_flashed_messages() %}
+                <p>{{msg}}</p>
             {% endfor %}
-        </tbody>
-    </table>
+        </form><br>
+
+        <table class="table mx-auto">
+            <thead class="thead-dark">
+            <tr>
+                <th>Filename</th>
+                <th>Date Modified</th>
+                <th>Size</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for file in data %}
+                    <tr>
+                        <td>{{file[0]}}</td>
+                        <td>{{file[1]}}</td>
+                        <td>{{file[2]}}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary"><a style="text-decoration: none; color: #fff;" href="/download/{{file[0]}}">Download</a></button>
+                            <button type="button" class="btn btn-danger"><a style="text-decoration: none; color: #fff;" href="/delete/{{file[0]}}">Delete</a></button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <footer class="page-footer fixed-bottom">
+            <div class="footer-copyright text-center py-3">
+                <a href="/logout"><button type="button" class="btn btn-danger">Logout</button></a>
+            </div>          
+        </footer>
+
+    {% else %}
+    <!-- login page -->
+
+    <style>
+        body{
+            padding:100px 0;
+            background-color:#efefef
+        }
+        a, a:hover{
+            color:#333
+        }
+    </style>
+
+    <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-6">
+            <div class="form-group">
+                <label>Password</label>
+                <form method="POST" class="input-group" id="show_hide_password">
+                    <input name="passcode" class="form-control" type="password">
+                    <input type="submit" class="btn btn-success" value="Submit">
+                    <div class="input-group-addon">
+                        <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+                    </div>
+                </form><br>
+                {% for msg in get_flashed_messages() %}
+                        <p style="color: red;">{{msg}}</p>
+                {% endfor %}
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#show_hide_password a").on('click', function(event) {
+                event.preventDefault();
+                if($('#show_hide_password input').attr("type") == "text"){
+                    $('#show_hide_password input').attr('type', 'password');
+                    $('#show_hide_password i').addClass( "fa-eye-slash" );
+                    $('#show_hide_password i').removeClass( "fa-eye" );
+                }else if($('#show_hide_password input').attr("type") == "password"){
+                    $('#show_hide_password input').attr('type', 'text');
+                    $('#show_hide_password i').removeClass( "fa-eye-slash" );
+                    $('#show_hide_password i').addClass( "fa-eye" );
+                }
+            });
+        });
+    </script>
+
+    {% endif %}
 </body>
 </html>
