@@ -12,7 +12,7 @@
     {% if session['logged_in'] %}
 
         <nav class="navbar navbar-light bg-light">
-            <a class="navbar-brand" href="/">File Sharing</a>
+            <a class="navbar-brand" href="/">File Sharing - {{session['username']}}</a>
         </nav><br>
 
         <form method="POST" class="input-group w-50 mx-auto" enctype="multipart/form-data">
@@ -24,7 +24,7 @@
             <input type="submit" class="btn btn-success" value="Upload"/>
 
             {% for msg in get_flashed_messages() %}
-                <p>{{msg}}</p>
+                <p class="btn-danger">{{msg}}</p>
             {% endfor %}
         </form><br>
 
@@ -44,8 +44,8 @@
                         <td>{{file[1]}}</td>
                         <td>{{file[2]}}</td>
                         <td>
-                            <button type="button" class="btn btn-primary"><a style="text-decoration: none; color: #fff;" href="/download/{{file[0]}}">Download</a></button>
-                            <button type="button" class="btn btn-danger"><a style="text-decoration: none; color: #fff;" href="/delete/{{file[0]}}">Delete</a></button>
+                            <button type="button" class="btn btn-primary"><a style="text-decoration: none; color: #fff;" href="/download/{{session['username']}}/{{file[0]}}">Download</a></button>
+                            <button type="button" class="btn btn-danger"><a style="text-decoration: none; color: #fff;" href="/delete/{{session['username']}}/{{file[0]}}">Delete</a></button>
                         </td>
                     </tr>
                 {% endfor %}
