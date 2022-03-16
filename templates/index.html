@@ -1,113 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <title>Home</title>
-</head>
-<body>
-
-    {% if session['logged_in'] %}
-
-        <nav class="navbar navbar-light bg-light">
-            <a class="navbar-brand" href="/">File Sharing - {{session['username']}}</a>
-        </nav><br>
-
-        <form method="POST" class="input-group w-50 mx-auto" enctype="multipart/form-data">
-            <div class="custom-file">
-                <input type="file" name="file" class="custom-file-input" id="customFile">
-                <label class="custom-file-label" for="customFile">Choose file</label>
-            </div>
-
-            <input type="submit" class="btn btn-success" value="Upload"/>
-
-            {% for msg in get_flashed_messages() %}
-                <p class="btn-danger">{{msg}}</p>
-            {% endfor %}
-        </form><br>
-
-        <table class="table mx-auto">
-            <thead class="thead-dark">
-            <tr>
-                <th>Filename</th>
-                <th>Date Modified</th>
-                <th>Size</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-                {% for file in data %}
-                    <tr>
-                        <td>{{file[0]}}</td>
-                        <td>{{file[1]}}</td>
-                        <td>{{file[2]}}</td>
-                        <td>
-                            <button type="button" class="btn btn-primary"><a style="text-decoration: none; color: #fff;" href="/download/{{session['username']}}/{{file[0]}}">Download</a></button>
-                            <button type="button" class="btn btn-danger"><a style="text-decoration: none; color: #fff;" href="/delete/{{session['username']}}/{{file[0]}}">Delete</a></button>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <footer class="page-footer fixed-bottom">
-            <div class="footer-copyright text-center py-3">
-                <a href="/logout"><button type="button" class="btn btn-danger">Logout</button></a>
-            </div>          
-        </footer>
-
-    {% else %}
-    <!-- login page -->
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/49b20dae2f.js" crossorigin="anonymous"></script> <!-- personal font awesome kit link -->
+    <title>File Sharing</title>
     <style>
-        body{
-            padding:100px 0;
-            background-color:#efefef
+        .uploadBtn {
+            width: 100%;
         }
-        a, a:hover{
-            color:#333
+
+        a {
+            text-decoration: none;
         }
     </style>
-
-    <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-6">
-            <div class="form-group">
-                <label>Password</label>
-                <form method="POST" class="input-group" id="show_hide_password">
-                    <input name="passcode" class="form-control" type="password">
-                    <input type="submit" class="btn btn-success" value="Submit">
-                    <div class="input-group-addon">
-                        <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
-                    </div>
-                </form><br>
-                {% for msg in get_flashed_messages() %}
-                        <p style="color: red;">{{msg}}</p>
-                {% endfor %}
-            </div>
-          </div>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto"></ul>
+          <form method="POST" class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="query" aria-label="Search">
+            <input class="btn btn-outline-success my-2 my-sm-0" name="submitBtn" type="submit" value="Search">
+          </form>
         </div>
-    </div>
+    </nav>
+
+    {% for msg in get_flashed_messages() %}
+        {% if 'Success' in msg %}
+            <div class="col-sm-12">
+                <div class="alert fade alert-simple alert-success alert-dismissible text-left font__family-montserrat font__size-16 font__weight-light brk-library-rendered rendered show">
+                <button type="button" class="close font__size-18" data-dismiss="alert">
+                                            <span aria-hidden="true"><a>
+                            <i class="fa fa-times greencross"></i>
+                            </a></span>
+                                            <span class="sr-only">Close</span> 
+                                        </button>
+                <i class="start-icon far fa-check-circle faa-tada animated"></i>
+                <strong class="font__weight-semibold">Well done! </strong>{{msg}}
+                </div>
+            </div>
+        {% else %}
+            <div class="col-sm-12">
+                <div class="alert fade alert-simple alert-danger alert-dismissible text-left font__family-montserrat font__size-16 font__weight-light brk-library-rendered rendered show" role="alert" data-brk-library="component__alert">
+                <button type="button" class="close font__size-18" data-dismiss="alert">
+                                            <span aria-hidden="true">
+                                                <i class="fa fa-times danger "></i>
+                                            </span>
+                                            <span class="sr-only">Close</span>
+                                        </button>
+                <i class="start-icon far fa-times-circle faa-pulse animated"></i>
+                <strong class="font__weight-semibold">Oh snap!</strong> {{msg}}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if number is defined %}
+            <br><h3>{{number}} Results found.</h3><br>
+    {% endif %}
+
+    <br><div class="d-flex justify-content-center flex-nowrap">
+        <div class="mx-2 p-2">
+            <form method="POST" class="custom-file" enctype=multipart/form-data>
+              <input type="file" name="file" class="custom-file-input" id="customFile">
+              <label class="custom-file-label" for="customFile" id="fileLabel">Choose file</label><br><br>
+              <input type="submit" class="btn btn-success uploadBtn" name="submitBtn" value="Upload">
+            </form>
+        </div> 
+    </div><br>
+
+    <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th>Filename</th>
+            <th>Date Uploaded</th>
+            <th>Date Modified</th>
+            <th>File Size</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for f in data %}
+                <tr>
+                    <th>{{f[0]}}</th>
+                    <th>{{f[1]}}</th>
+                    <th>{{f[2]}}</th>
+                    <th>{{f[3]}}</th>
+                    <th>
+                        <a style="color: RoyalBlue;" href="download/{{f[0]}}"><i class="fa-solid fa-download fa-2x"></i></a>
+                        <a style="color: red;" href="delete/{{f[0]}}"><i class="fa-solid fa-trash fa-2x"></i></a>
+                    </th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 
     <script>
-        $(document).ready(function() {
-            $("#show_hide_password a").on('click', function(event) {
-                event.preventDefault();
-                if($('#show_hide_password input').attr("type") == "text"){
-                    $('#show_hide_password input').attr('type', 'password');
-                    $('#show_hide_password i').addClass( "fa-eye-slash" );
-                    $('#show_hide_password i').removeClass( "fa-eye" );
-                }else if($('#show_hide_password input').attr("type") == "password"){
-                    $('#show_hide_password input').attr('type', 'text');
-                    $('#show_hide_password i').removeClass( "fa-eye-slash" );
-                    $('#show_hide_password i').addClass( "fa-eye" );
-                }
-            });
-        });
-    </script>
+        const inputElement = document.getElementById("customFile");
 
-    {% endif %}
+        inputElement.addEventListener("change", handleFiles, false);
+        function handleFiles() {
+            const fileList = inputElement.value;
+            let filename = fileList.split("\\").pop();
+            document.getElementById('fileLabel').innerHTML = filename;
+        }
+    </script>
 </body>
 </html>
