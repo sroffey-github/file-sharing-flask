@@ -2,18 +2,17 @@ from flask import Flask, render_template, request, flash, redirect, send_file, u
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import controller
-import time
-import uuid
 import os
 
 load_dotenv()
 
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER')
+SECRET_KEY = os.getenv('SECRET_KEY')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SECRET_KEY'] = str(uuid.uuid4())
+app.config['SECRET_KEY'] = SECRET_KEY
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000 # 16MB
 
 def allowed_file(filename):
@@ -58,6 +57,10 @@ def index():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 flash('Success, File Uploaded Successfully.')
                 return render_template('index.html', files=controller.get_files())
+
+            flash('Error, Invalid File')
+            return render_template('index.html', files=controller.get_files())
+
         elif request.form['submitBtn'] == 'Search':
             q = request.form['query']
             results = controller.search(q)

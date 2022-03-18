@@ -28,7 +28,7 @@ def search(q):
     files = get_files()
     
     for i in files:
-        if q in i:
+        if q in str(i):
             results.append(i)
             
     return results
